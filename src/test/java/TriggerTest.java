@@ -7,6 +7,6 @@ public class TriggerTest {
     @Test
     public void testMethod() {
         int rsl = Trigger.test();
-        assertThat(rsl, is(1));
+        assertThat(rsl, is(2));
     }
 }
