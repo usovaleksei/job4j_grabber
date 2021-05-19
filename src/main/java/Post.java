@@ -1,11 +1,18 @@
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Post {
 
+    private String link;
     private String vacancyTitle;
     private String vacancyDescription;
-    private String link;
-    private Date date;
+    private LocalDateTime date;
+
+    public Post(String link, String vacancyTitle, String vacancyDescription, LocalDateTime date) {
+        this.link = link;
+        this.vacancyTitle = vacancyTitle;
+        this.vacancyDescription = vacancyDescription;
+        this.date = date;
+    }
 
     public String getVacancyTitle() {
         return vacancyTitle;
@@ -31,11 +38,21 @@ public class Post {
         this.link = link;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
+    }
+
+    @Override
+    public String toString() {
+        return "Post{"
+                + "link='" + link + '\''
+                + ", vacancyTitle='" + vacancyTitle + '\''
+                + ", vacancyDescription='" + vacancyDescription + '\''
+                + ", date=" + date
+                + '}';
     }
 }
