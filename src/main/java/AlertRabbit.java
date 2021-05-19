@@ -12,41 +12,32 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 public class AlertRabbit {
 
-    public static void main(String[] args) {
-        try {
-            try (Connection connection = AlertRabbit.getConnection()) {
-                int interval = AlertRabbit.getInterval();
-                Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
-                scheduler.start();
-                JobDataMap data = new JobDataMap();
-                data.put("connection", connection);
-                JobDetail job = newJob(Rabbit.class)
-                        .usingJobData(data)
-                        .build();
-                SimpleScheduleBuilder times = simpleSchedule()
-                        .withIntervalInSeconds(interval)
-                        .repeatForever();
-                Trigger trigger = newTrigger()
-                        .startNow()
-                        .withSchedule(times)
-                        .build();
-                scheduler.scheduleJob(job, trigger);
-                Thread.sleep(10000);
-                scheduler.shutdown();
-            }
-        } catch (SchedulerException | InterruptedException | IOException | SQLException se) {
-            se.printStackTrace();
+    public static void main(String[] args) throws Exception {
+        Properties config = getProperties("rabbit.properties");
+        try (Connection connection = AlertRabbit.getConnection(config)) {
+            int interval = AlertRabbit.getInterval(config);
+            Scheduler scheduler = StdSchedulerFactory.getDefaultScheduler();
+            scheduler.start();
+            JobDataMap data = new JobDataMap();
+            data.put("connection", connection);
+            JobDetail job = newJob(Rabbit.class)
+                    .usingJobData(data)
+                    .build();
+            SimpleScheduleBuilder times = simpleSchedule()
+                    .withIntervalInSeconds(interval)
+                    .repeatForever();
+            Trigger trigger = newTrigger()
+                    .startNow()
+                    .withSchedule(times)
+                    .build();
+            scheduler.scheduleJob(job, trigger);
+            Thread.sleep(10000);
+            scheduler.shutdown();
         }
     }
 
-    private static int getInterval() {
-        Properties pr = new Properties();
-        try (InputStream io = AlertRabbit.class.getClassLoader().getResourceAsStream("rabbit.properties")) {
-            pr.load(io);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return Integer.parseInt(pr.getProperty("rabbit.interval"));
+    private static int getInterval(Properties config) {
+        return Integer.parseInt(config.getProperty("rabbit.interval"));
     }
 
     public static class Rabbit implements Job {
@@ -68,15 +59,20 @@ public class AlertRabbit {
         }
     }
 
-    private static Connection getConnection() throws SQLException, IOException {
+    private static Properties getProperties(String path) throws IOException {
         ClassLoader loader = AlertRabbit.class.getClassLoader();
-        try (InputStream io = loader.getResourceAsStream("rabbit.properties")) {
+        try (InputStream io = loader.getResourceAsStream(path)) {
             Properties config = new Properties();
             config.load(io);
-            String url = config.getProperty("jdbc.url");
-            String login = config.getProperty("jdbc.login");
-            String password = config.getProperty("jdbc.password");
-            return DriverManager.getConnection(url, login, password);
+            return config;
         }
+    }
+
+    private static Connection getConnection(Properties config) throws SQLException, ClassNotFoundException {
+        Class.forName(config.getProperty("jdbc.driver"));
+        String url = config.getProperty("jdbc.url");
+        String login = config.getProperty("jdbc.login");
+        String password = config.getProperty("jdbc.password");
+        return DriverManager.getConnection(url, login, password);
     }
 }
