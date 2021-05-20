@@ -1,5 +1,6 @@
 package grabber;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -16,4 +17,7 @@ public interface Store {
 
     //method to find post in DB by ID
     Post findById(String id);
+
+    //method to close connection
+    void close() throws SQLException;
 }
