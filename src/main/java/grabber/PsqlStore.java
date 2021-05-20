@@ -1,9 +1,6 @@
 package grabber;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -30,7 +27,7 @@ public class PsqlStore implements Store {
 
     @Override
     public void save(Post post) {
-        try (PreparedStatement ps = this.connection.prepareStatement("insert into post(name, text, link, created) values(?, ?, ?, ?)")) {
+        try (PreparedStatement ps = this.connection.prepareStatement("insert into post(name, text, link, created) values(?, ?, ?, ?) on conflict do nothing")) {
             ps.setString(1, post.getName());
             ps.setString(2, post.getText());
             ps.setString(3, post.getLink());
@@ -87,22 +84,5 @@ public class PsqlStore implements Store {
         if (connection != null) {
             connection.close();
         }
-    }
-
-    public static void main(String[] args) {
-        Properties config = new Properties();
-        ClassLoader loader = PsqlStore.class.getClassLoader();
-        try (InputStream io = loader.getResourceAsStream("grabber.properties")) {
-            config.load(io);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        PsqlStore store = new PsqlStore(config);
-        Post postTwo = new Post("Вакансия Java-разработчик", "Писать java-код", "hh.ru/2", LocalDateTime.now());
-        Post postThree = new Post("Вакансия Java-разработчик", "Писать java-код", "hh.ru/3", LocalDateTime.now());
-        store.save(postTwo);
-        store.save(postThree);
-        System.out.println(store.getAll());
-        System.out.println(store.findById("5"));
     }
 }

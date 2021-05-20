@@ -1,3 +1,5 @@
+package grabber;
+
 import java.time.LocalDateTime;
 
 public interface DateTimeParser {

@@ -1,3 +1,5 @@
+package grabber;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,7 +43,7 @@ public class SqlRuParse implements Parse {
         SqlRuDateTimeParser parser = new SqlRuDateTimeParser();
         String parseDate = date.text().split("\\[")[0].trim();
         LocalDateTime createdDate = parser.parse(parseDate);
-        post = new Post(link, title, description, createdDate);
+        post = new Post(title, description, link, createdDate);
         return post;
     }
 }
