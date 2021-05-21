@@ -66,7 +66,7 @@ public class PsqlStore implements Store {
         try (PreparedStatement ps = this.connection.prepareStatement("select * from post where id = ?")) {
             ps.setInt(1, postId);
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
+                if (rs.next()) {
                     post.setName(rs.getString("name"));
                     post.setText(rs.getString("text"));
                     post.setLink(rs.getString("link"));
